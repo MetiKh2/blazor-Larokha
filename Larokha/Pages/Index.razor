@@ -1,0 +1,121 @@
+﻿@page "/"
+@using Larokha.Models
+
+<PageTitle>Index</PageTitle>
+
+<Header />
+<div class="mx-5">
+    <form class="mt-5 d-flex">
+        <EditForm Model="SearchTerm">
+            <InputText id="name" Value="@SearchTerm" ValueChanged="SearchTermChanged" ValueExpression="() => SearchTerm" placeholder="Search products ..." class="bg-white border-1 p-2 " style="flex:1;outline:0; border-color:#eee;" />
+
+        </EditForm>
+
+    </form>
+    <div class="d-flex justify-content-around">
+        <select @onchange="CategoryChanged" class="my-3 form-select w-auto" aria-label="Default select example">
+            <option value="" selected>All</option>
+            <option value="bed">bed</option>
+            <option value="cabinet">cabinet</option>
+            <option value="chair">chair</option>
+            <option value="clock">clock</option>
+            <option value="desk">desk</option>
+            <option value="table">table</option>
+        </select>
+        <select @onchange="SortChanged" class="my-3 form-select w-auto" aria-label="Default select example">
+            <option value="highest" selected>highest</option>
+            <option value="lowest" selected>lowest</option>
+        </select>
+        <select @onchange="TypeChanged" class="my-3 form-select w-auto" aria-label="Default select example">
+            <option value="" selected>All</option>
+            <option value="secondHand" selected>second hand</option>
+            <option value="new" selected>new</option>
+        </select>
+    </div>
+
+    <div class="mt-5 row">
+        @foreach (var item in Results)
+        {
+            <div class="col col-12 col-md-6 col-lg-3">
+                <div class="card ">
+                    <img src="@item.Image" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text">@item.Description</p>
+                        <a class="btn btn-primary">£@item.Price</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+@code {
+    public List<IkeaItem> IkeaItems { get; set; } = new List<IkeaItem>
+        {
+            new IkeaItem{Id=1,Star=5,Price=10,Image="https://assets.newatlas.com/dims4/default/fca23ce/2147483647/strip/true/crop/1620x1080+150+0/resize/1200x800!/quality/90/?url=http%3A%2F%2Fnewatlas-brightspot.s3.amazonaws.com%2Farchive%2Fravaror-2.jpg",Category="bed",Description="IKEA - easily packable furniture for urban nomads",Title="Easily packable furniture",Type=Models.Type.SecondHand},
+            new IkeaItem{Id=2,Star=5,Price=19,Image="https://www.ikea.com/ie/en/images/products/brimnes-desk-white__0926236_pe789116_s5.jpg?f=s",Description="Wall clock, black26 cm, 10 ¼",Title="STURSK",Type=Models.Type.New,Category="clock"},
+            new IkeaItem{Id=3,Star=5,Price=65,Image="https://www.ikea.com/eg/en/images/products/strandmon-footstool-skiftebo-yellow__0837297_pe601176_s5.jpg",Description="Desk, white, 120x65 cm",Title="BRIMNES",Type=Models.Type.SecondHand,Category="desk"},
+            new IkeaItem{Id=4,Star=5,Price=99.5M,Image="https://www.ikea.com/us/en/images/products/brimnes-cabinet-with-doors-black__0705262_pe725488_s5.jpg?f=s",Description="Footstool, Skiftebo yellow",Title="STRANDMON",Type=Models.Type.New,Category="chair"},
+            new IkeaItem{Id=5,Star=5,Price=72,Image="https://www.ikea.com/kw/en/images/products/taerendoe-adde-table-and-4-chairs-black__0732110_pe738573_s5.jpg?f=s",Description="Cabinet with doors, black30 3/4x37 3/8",Title="BRIMNES",Type=Models.Type.SecondHand,Category="cabinet"},
+            new IkeaItem{Id=6,Star=5,Price=23.5M,Image="https://www.ikea.com/au/en/images/products/malm-chest-of-6-drawers-white__0859014_pe624334_s5.jpg",Description="Table and 4 chairs, black, 110 cm",Title="TÄRENDÖ / ADDE",Type=Models.Type.New,Category="table"},
+            new IkeaItem{Id=7,Star=5,Price=229.5M,Image="https://www.ikea.com/us/en/images/products/rotbloeta-wall-clock-ash-veneer-light-gray__0752493_pe747444_s5.jpg",Description="Chest of 6 drawers, white160x78 cm",Title="MALM",Type=Models.Type.SecondHand},
+            new IkeaItem{Id=8,Star=5,Price=18.7M,Image="https://www.ikea.com/us/en/images/products/stursk-wall-clock-black__0661138_pe711345_s5.jpg?f=s",Description="Wall clock - ash veneer/light gray 16 ½",Title="ROTBLÖTA",Type=Models.Type.New,Category="clock"},
+            new IkeaItem{Id=9,Star=5,Price=134.9M,Image="https://www.ikea.com/us/en/images/products/stursk-wall-clock-black__0661138_pe711345_s5.jpg?f=s",Description="Bed frame with storage, black/Luröy, Full",Title="BRIMNES",Type=Models.Type.SecondHand,Category="bed"},
+        };
+    public List<IkeaItem> Results { get; set; } = new List<IkeaItem>();
+    public string Category { get; set; } = "";
+    public string Type { get; set; } = "";
+    public string Sort { get; set; } = "lowest";
+    public string SearchTerm { get; set; } = "";
+    protected override void OnInitialized()
+    {
+        Results = IkeaItems;
+        base.OnInitialized();
+    }
+    public void CategoryChanged(ChangeEventArgs e)
+    {
+        Category = e.Value.ToString().ToLower();
+        Console.WriteLine(Category);
+        Filter();
+    }
+    public void TypeChanged(ChangeEventArgs e)
+    {
+        Type = e.Value.ToString().ToLower();
+        Console.WriteLine(Category);
+        Filter();
+    }
+    public void SortChanged(ChangeEventArgs e)
+    {
+        Sort = e.Value.ToString().ToLower();
+        Console.WriteLine(Sort);
+        Filter();
+    }
+    private void SearchTermChanged(string value)
+    {
+        SearchTerm = value.ToLower();
+        Filter();
+    }
+    public void Filter()
+    {
+        var result = IkeaItems;
+        if (!string.IsNullOrEmpty(SearchTerm))
+        result= result.Where(p => p.Title.ToLower().Contains(SearchTerm) || p.Description.ToLower().Contains(SearchTerm)).ToList();
+        if (!string.IsNullOrEmpty(Category))
+        result= result.Where(p => p.Category?.ToLower()==Category.ToLower()).ToList();
+        if (!string.IsNullOrEmpty(Type)) result = result.Where(p => p.Type.ToString().ToLower()==Type.ToLower()).ToList();
+        switch (Sort)
+        {
+            case "highest":
+               result= result.OrderByDescending(p => p.Price).ToList();
+                break;
+            case "lowest":
+               result= result.OrderBy(p => p.Price).ToList();
+                break;
+        }
+        Results = result.ToList() ;
+        //Results.AddRange (query.ToList());
+    }
+
+}
